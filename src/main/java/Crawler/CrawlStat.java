@@ -26,6 +26,7 @@ import java.util.Set;
 
 public class CrawlStat {
     private int totalProcessedPages;
+    private int totalSuccessPages;
     private long totalLinks;
     private int totalFailPages;
     private Map<Integer,Integer> statusMap = new HashMap<>();
@@ -42,12 +43,22 @@ public class CrawlStat {
         this.totalProcessedPages++;
     }
 
+    public void incSuccessPages() {
+        this.totalSuccessPages++;
+    }
+
+    public int getTotalSuccessPages() {
+        return this.totalSuccessPages;
+    }
+
     public void incFailPages() {
         this.totalFailPages++;
     }
+
     public int getTotalFailPages() {
         return this.totalFailPages;
     }
+
     public long getTotalLinks() {
         return totalLinks;
     }

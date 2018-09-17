@@ -90,6 +90,7 @@ public class USCCrawler extends WebCrawler {
         }
 
         if (page.getParseData() instanceof HtmlParseData) {
+            myCrawlStat.incSuccessPages();
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
             Set<WebURL> links = htmlParseData.getOutgoingUrls();
 

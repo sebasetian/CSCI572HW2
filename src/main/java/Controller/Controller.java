@@ -13,19 +13,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-import static edu.uci.ics.crawler4j.robotstxt.UserAgentDirectives.logger;
-
 public class Controller {
     public static void main(String[] args) throws Exception {
         String crawlStorageFolder = "output/root";
-        int numberOfCrawlers = 50;
+        int numberOfCrawlers = 20;
         int maxDepthOfCrawling = 16;
         int maxPages = 100;
         CrawlConfig config = new CrawlConfig();
         config.setCrawlStorageFolder(crawlStorageFolder);
         config.setMaxDepthOfCrawling(maxDepthOfCrawling);
         config.setMaxPagesToFetch(maxPages);
-        config.setPolitenessDelay(1000);
+        config.setPolitenessDelay(20000);
         /*
          * Instantiate the controller for this crawl.
          */
@@ -52,6 +50,7 @@ public class Controller {
         int totalProcessedPages = 0;
         long totalLinks = 0;
         int totalFailPages = 0;
+        int totalSuccessPages = 0;
         Map<Integer,Integer> statusMap = new HashMap<>();
         Map<Integer,Integer> fileSizeMap = new HashMap<>();
         Map<String,Integer> typeMap = new HashMap<>();
@@ -61,6 +60,7 @@ public class Controller {
             CrawlStat stat = (CrawlStat) localData;
             totalLinks += stat.getTotalLinks();
             totalProcessedPages += stat.getTotalProcessedPages();
+            totalSuccessPages += stat.getTotalSuccessPages();
             statusMap.putAll(stat.getStatusMap());
             fileSizeMap.putAll(stat.getFileSizeMap());
             typeMap.putAll(stat.getTypeMap());
@@ -76,8 +76,30 @@ public class Controller {
                 pw = new FileWriter(file);
             }
             StringBuilder sb = new StringBuilder();
-            sb.append("Fetch Statistics").append('\n').append("================");
-            sb.append()
+            sb.append("Fetch Statistics").append('\n').append("================").append('\n');
+            sb.append("# fetches attempted: ").append(totalProcessedPages).append('\n');
+            sb.append("# fetches succeeded: ").append(totalSuccessPages).append('\n');
+            sb.append("# fetches aborted: ").append(totalProcessedPages - totalSuccessPages - totalFailPages).append('\n');
+            sb.append("# fetches failed: ").append(totalFailPages).append('\n').append('\n');
+            sb.append("Outgoing URLs: ").append('\n').append("================").append('\n');
+            sb.append("Total URLs extracted: ").append(totalLinks + 1).append('\n');
+            sb.append("# unique URLs extracted: ").append(uniqueURLSet.size()).append('\n');
+            sb.append("# unique URLs within News Site: ").append(uniqueURLinSite.size()).append('\n');
+            sb.append("# unique URLs outside News Site: ").append(uniqueURLSet.size() - uniqueURLinSite.size()).append('\n').append('\n');
+            sb.append("Status Codes:").append('\n').append("================").append('\n');
+            for (Map.Entry<Integer,Integer> en: statusMap.entrySet()) {
+                sb.append(en.getKey()).append(" :").append(en.getValue()).append('\n');
+            }
+            sb.append('\n');
+            sb.append("File Sizes:").append('\n').append("================").append('\n');
+            for (Map.Entry<Integer,Integer> en: fileSizeMap.entrySet()) {
+                sb.append(en.getKey()).append(" :").append(en.getValue()).append('\n');
+            }
+            sb.append('\n');
+            sb.append("Content Types:").append('\n').append("================").append('\n');
+            for (Map.Entry<String,Integer> en: typeMap.entrySet()) {
+                sb.append(en.getKey()).append(" :").append(en.getValue()).append('\n');
+            }
             pw.append(sb.toString());
             pw.close();
         } catch (IOException e) {
