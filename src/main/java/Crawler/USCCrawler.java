@@ -13,7 +13,7 @@ public class USCCrawler extends WebCrawler {
     private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js"
             + "|mp3|mp4|zip|gz))$");
 
-    CrawlStat myCrawlStat;
+    private CrawlStat myCrawlStat;
 
     public USCCrawler() {
         myCrawlStat = new CrawlStat();
@@ -31,8 +31,33 @@ public class USCCrawler extends WebCrawler {
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String href = url.getURL().toLowerCase();
+
+        if (!FILTERS.matcher(href).matches()) {
+            myCrawlStat.incUniqueURL(href);
+            try {
+                File file= new File ("output/root/urls_mercurynews.csv");
+                FileWriter pw;
+                if (file.exists()) {
+                    pw = new FileWriter(file, true);
+                } else {
+                    pw = new FileWriter(file);
+                }
+                StringBuilder sb = new StringBuilder();
+                if (href.startsWith("https://www.mercurynews.com/")) {
+                    myCrawlStat.incUniqueURLinsite(href);
+                    sb.append(href).append(",").append("OK").append('\n');
+                } else {
+                    sb.append(href).append(",").append("N_OK").append('\n');
+                }
+                pw.append(sb.toString());
+                pw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
         return !FILTERS.matcher(href).matches()
-                && (href.startsWith("https://www.mercurynews.com/") || href.startsWith("https://mercurynews.com/"));
+                && href.startsWith("https://www.mercurynews.com/");
     }
 
     /**
@@ -55,8 +80,13 @@ public class USCCrawler extends WebCrawler {
             sb.append(url).append(",").append(page.getStatusCode()).append('\n');
             pw.append(sb.toString());
             pw.close();
+            myCrawlStat.incStatusCodes(page.getStatusCode());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (page.getStatusCode() >= 300) {
+            myCrawlStat.incFailPages();
         }
 
         if (page.getParseData() instanceof HtmlParseData) {
@@ -79,6 +109,8 @@ public class USCCrawler extends WebCrawler {
                         .append(",").append(page.getContentType()).append('\n');
                 pw.append(sb.toString());
                 pw.close();
+                myCrawlStat.incFileSize(page.getContentData().length);
+                myCrawlStat.incType(page.getContentType());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -93,20 +125,4 @@ public class USCCrawler extends WebCrawler {
         return myCrawlStat;
     }
 
-    /**
-     * This function is called by controller before finishing the job.
-     * You can put whatever stuff you need here.
-     */
-    @Override
-    public void onBeforeExit() {
-        dumpMyData();
-    }
-
-    public void dumpMyData() {
-        int id = getMyId();
-        // You can configure the log to output to file
-        logger.info("Crawler {} > Processed Pages: {}", id, myCrawlStat.getTotalProcessedPages());
-        logger.info("Crawler {} > Total Links Found: {}", id, myCrawlStat.getTotalLinks());
-        logger.info("Crawler {} > Total Text Size: {}", id, myCrawlStat.getTotalTextSize());
-    }
 }

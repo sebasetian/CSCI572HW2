@@ -8,7 +8,10 @@ import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
-import java.util.List;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 import static edu.uci.ics.crawler4j.robotstxt.UserAgentDirectives.logger;
 
@@ -46,20 +49,39 @@ public class Controller {
 
         List<Object> crawlersLocalData = controller.getCrawlersLocalData();
 
-        long totalLinks = 0;
-        long totalTextSize = 0;
         int totalProcessedPages = 0;
+        long totalLinks = 0;
+        int totalFailPages = 0;
+        Map<Integer,Integer> statusMap = new HashMap<>();
+        Map<Integer,Integer> fileSizeMap = new HashMap<>();
+        Map<String,Integer> typeMap = new HashMap<>();
+        Set<String> uniqueURLSet = new HashSet<>();
+        Set<String> uniqueURLinSite = new HashSet<>();
         for (Object localData : crawlersLocalData) {
             CrawlStat stat = (CrawlStat) localData;
             totalLinks += stat.getTotalLinks();
-            totalTextSize += stat.getTotalTextSize();
             totalProcessedPages += stat.getTotalProcessedPages();
+            statusMap.putAll(stat.getStatusMap());
+            fileSizeMap.putAll(stat.getFileSizeMap());
+            typeMap.putAll(stat.getTypeMap());
+            uniqueURLinSite.addAll(stat.getUniqueURLInSite());
+            uniqueURLSet.addAll(stat.getUniqueURL());
         }
-
-        logger.info("Aggregated Statistics:");
-        logger.info("\tProcessed Pages: {}", totalProcessedPages);
-        logger.info("\tTotal Links found: {}", totalLinks);
-        logger.info("\tTotal Text Size: {}", totalTextSize);
-
+        try {
+            File file= new File ("output/root/statistics.txt");
+            FileWriter pw;
+            if (file.exists()) {
+                pw = new FileWriter(file, true);
+            } else {
+                pw = new FileWriter(file);
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("Fetch Statistics").append('\n').append("================");
+            sb.append()
+            pw.append(sb.toString());
+            pw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

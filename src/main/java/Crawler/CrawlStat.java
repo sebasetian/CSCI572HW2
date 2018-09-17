@@ -27,8 +27,6 @@ import java.util.Set;
 public class CrawlStat {
     private int totalProcessedPages;
     private long totalLinks;
-    private long totalTextSize;
-    private int totalPages;
     private int totalFailPages;
     private Map<Integer,Integer> statusMap = new HashMap<>();
     private Map<Integer,Integer> fileSizeMap = new HashMap<>();
@@ -40,20 +38,8 @@ public class CrawlStat {
         return totalProcessedPages;
     }
 
-    public void setTotalProcessedPages(int totalProcessedPages) {
-        this.totalProcessedPages = totalProcessedPages;
-    }
-
     public void incProcessedPages() {
         this.totalProcessedPages++;
-    }
-
-    public void incTotalPages() {
-        this.totalPages++;
-    }
-
-    public int getTotalPages() {
-        return this.totalPages;
     }
 
     public void incFailPages() {
@@ -66,31 +52,15 @@ public class CrawlStat {
         return totalLinks;
     }
 
-    public void setTotalLinks(long totalLinks) {
-        this.totalLinks = totalLinks;
-    }
-
-    public long getTotalTextSize() {
-        return totalTextSize;
-    }
-
-    public void setTotalTextSize(long totalTextSize) {
-        this.totalTextSize = totalTextSize;
-    }
-
     public void incTotalLinks(int count) {
         this.totalLinks += count;
-    }
-
-    public void incTotalTextSize(int count) {
-        this.totalTextSize += count;
     }
 
     public void incStatusCodes(int status) {
         statusMap.put(status, statusMap.getOrDefault(status,0) + 1);
     }
 
-    public Map<Integer,Integer> getStatusMa() {
+    public Map<Integer,Integer> getStatusMap() {
         return statusMap;
     }
     public void incFileSize(int fileSize) {
@@ -122,10 +92,10 @@ public class CrawlStat {
     public void incUniqueURLinsite(String href) {
         uniqueURLinSite.add(href);
     }
-    public int getUniqueURLSize() {
-        return uniqueURLSet.size();
+    public Set<String> getUniqueURL() {
+        return uniqueURLSet;
     }
-    public int getUniqueURLInSiteSize() {
-        return uniqueURLinSite.size();
+    public Set<String> getUniqueURLInSite() {
+        return uniqueURLinSite;
     }
 }
