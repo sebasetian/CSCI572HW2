@@ -1,6 +1,5 @@
 package Crawler;
 
-import com.sun.tools.corba.se.idl.InterfaceGen;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +28,7 @@ public class CrawlStat {
     private int totalSuccessPages;
     private long totalLinks;
     private int totalFailPages;
-    private Map<Integer,Integer> statusMap = new HashMap<>();
+    private Map<String,Integer> statusMap = new HashMap<>();
     private Map<Integer,Integer> fileSizeMap = new HashMap<>();
     private Map<String,Integer> typeMap = new HashMap<>();
     private Set<String> uniqueURLSet = new HashSet<>();
@@ -67,13 +66,14 @@ public class CrawlStat {
         this.totalLinks += count;
     }
 
-    public void incStatusCodes(int status) {
+    public void incStatusCodes(String status) {
         statusMap.put(status, statusMap.getOrDefault(status,0) + 1);
     }
 
-    public Map<Integer,Integer> getStatusMap() {
+    public Map<String,Integer> getStatusMap() {
         return statusMap;
     }
+
     public void incFileSize(int fileSize) {
         int size = fileSize / 1024;
         if (size < 1) {
@@ -91,21 +91,27 @@ public class CrawlStat {
     public Map<Integer,Integer> getFileSizeMap() {
         return fileSizeMap;
     }
+
     public void incType(String type) {
         typeMap.put(type,typeMap.getOrDefault(type,0) + 1);
     }
+
     public Map<String,Integer> getTypeMap() {
         return typeMap;
     }
+
     public void incUniqueURL(String href) {
         uniqueURLSet.add(href);
     }
+
     public void incUniqueURLinsite(String href) {
         uniqueURLinSite.add(href);
     }
+
     public Set<String> getUniqueURL() {
         return uniqueURLSet;
     }
+
     public Set<String> getUniqueURLInSite() {
         return uniqueURLinSite;
     }
